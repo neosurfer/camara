@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Uri fileUri;
     private ImageView iv_imagen;
+    public File _mediaFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 captureImage();
+
             }
         });
     }
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 previewCapturedImage();
+                scanMediaFile(_mediaFile);
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(getApplicationContext(),"Captura Cancelada", Toast.LENGTH_SHORT).show();
             } else {
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Uri getOutputMediaFileUri(int type) {
+        _mediaFile = getOutputMediaFile(type);
         return Uri.fromFile(getOutputMediaFile(type));
     }
 
@@ -86,10 +90,10 @@ public class MainActivity extends AppCompatActivity {
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
                     + "IMG_" + timeStamp + ".jpg");
+
         }else {
             return null;
         }
-
         return mediaFile;
     }
 
@@ -117,5 +121,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+    }
+
+    private void scanMediaFile(File photo) {
+        //si no llamamos a este metodo la imagen no se va a ver automaticamente
+        //sino hasta que desmontemos el dispositivo.
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(photo);
+        mediaScanIntent.setData(contentUri);
+        MainActivity.this.sendBroadcast(mediaScanIntent);
     }
 }
